@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form onsubmit="return false">
+        <textarea name="message" style="height: 300px; width: 300px;">
+
+        </textarea>
+        <input type="button" value="发送消息" onclick="send(this.form.message.value)">
+        <textarea id="responseText" style="height: 300px; width: 300px">
+
+        </textarea>
+        <input type="button" value="清空内容" onclick="document.getElementById('responseText').value=''">
+    </form>
+</body>
+<script>
+    var websocket;
+    // 判断当前浏览器是否支持WebSocket
+    if (window.WebSocket) {
+        // WebSocket的url格式为ws://地址:端口/应用程序上下文
+        websocket = new WebSocket("ws://localhost:8600/hello");
+        // WebSocket编程中，浏览器端来接收服务器端信息的。ev参数为浏览器返回的信息
+        websocket.onmessage = function (ev) {
+            let elementById = document.getElementById("responseText");
+            elementById.value = elementById.value + "\n" + ev.data;
+        }
+        // WebSocket编程中，浏览器开启和服务器的连接，之后可以在方法中写发送信息的逻辑。参数ev
+        websocket.onopen = function (ev) {
+            let elementById = document.getElementById("responseText");
+            elementById.value = "连接已经开启";
+        }
+        // WebSocket编程中，浏览器监听是否连接还在继续。
+        websocket.onclose = function (ev) {
+            let elementById = document.getElementById("responseText");
+            elementById.value = elementById.value + "\n" + "连接已经关闭！";
+        }
+
+    } else {
+        alert("当前浏览器不支持WebSocket，请更换浏览器")
+    }
+
+    // 点击按钮，发送消息给服务器端。
+    function send(message) {
+        // 先判断WebSocket是否建立好
+        if (window.websocket) {
+            // 判断websocket是否是开启状态
+            if (websocket.readyState == WebSocket.OPEN) {
+                websocket.send(message);
+            } else {
+                alert("连接还没有开启，稍等片刻");
+            }
+        } else {
+            alert("连接还未建立好，请稍等片刻");
+        }
+    }
+</script>
+</html>
